@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="min">
+<div class="home">
+
+    <header>
+        <span class="marca">Vendas</span>
+        <a class="sair" th:href="@{/logout}">Sair</a>
+    </header>
+
+    <p class="rotulo">
+        <span sec:authorize="hasRole('ADMIN')">Administrador</span>
+        <span sec:authorize="hasRole('PADRAO')">Usuário padrão</span>
+    </p>
+    <h1>Olá, <em sec:authentication="principal.nome">Usuário</em>.</h1>
+
+    <!-- Painéis exibidos conforme a role: ADMIN vê todos, PADRAO só Pedidos -->
+    <ul class="secoes">
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/produtos}">
+                <span class="nome">Produtos<span class="desc">Cadastro e estoque</span></span>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/clientes}">
+                <span class="nome">Clientes<span class="desc">Cadastro de clientes</span></span>
+            </a>
+        </li>
+        <li sec:authorize="hasAnyRole('ADMIN','PADRAO')">
+            <a th:href="@{/pedidos}">
+                <span class="nome">Pedidos<span class="desc">Criar, consultar e cancelar</span></span>
+            </a>
+        </li>
+    </ul>
+
+</div>
+</body>
+</html>

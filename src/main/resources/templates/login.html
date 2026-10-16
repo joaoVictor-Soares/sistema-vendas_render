@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="min">
+<span class="marca" style="position:absolute;top:2rem;left:2rem">Vendas</span>
+
+<main class="pagina-estreita">
+    <p class="rotulo">Acesso restrito</p>
+    <h1 class="titulo">Entrar</h1>
+    <p class="sub">Use seu e-mail e senha para continuar.</p>
+
+    <form method="post" th:action="@{/login}">
+
+        <p class="aviso erro" th:if="${param.error != null}">E-mail ou senha inválidos.</p>
+        <p class="aviso ok" th:if="${param.logout != null}">Você saiu da aplicação.</p>
+
+        <div class="campo">
+            <label class="rotulo" for="username">E-mail</label>
+            <input id="username" name="username" type="email" placeholder="seuemail@exemplo.com"
+                   autocomplete="username" required autofocus>
+        </div>
+
+        <div class="campo">
+            <label class="rotulo" for="password">Senha</label>
+            <input id="password" name="password" type="password" placeholder="••••••••"
+                   autocomplete="current-password" required>
+        </div>
+
+        <label class="lembrar">
+            <input id="remember-me" name="remember-me" type="checkbox">
+            Lembrar de mim
+        </label>
+
+        <button type="submit" class="botao">Entrar</button>
+    </form>
+</main>
+</body>
+</html>
