@@ -1,0 +1,43 @@
+DECISÃO: CADASTRO AUTOMÁTICO DOS USUÁRIOS DE TESTE
+===================================================
+
+O QUE FOI FEITO
+Foi criada a classe security/CriarUsuariosIniciais (CommandLineRunner). Quando a
+aplicação sobe, ela cadastra no banco dois usuários de teste, se ainda não existirem:
+
+  ADMIN   admin@email.com    senha: Admin@123
+  PADRAO  padrao@email.com   senha: Padrao@123
+
+POR QUE
+O roteiro das aulas cadastra os usuários manualmente pelo pgAdmin4. No Render isso
+não funcionou: o pgAdmin deu "connection timeout expired" ao conectar no banco
+externo, mesmo com o hostname resolvendo, a porta 5432 respondendo
+(TcpTestSucceeded: True) e o IP 0.0.0.0/0 liberado. Sem os usuários no banco do
+Render não há como fazer login e a entrega (link do Render + dois usuários de teste
+já cadastrados) fica bloqueada. A aplicação, ao contrário do pgAdmin, acessa o banco
+pela rede interna do Render e conecta normalmente.
+
+COMO FUNCIONA
+- Roda uma vez a cada inicialização, depois que o Hibernate cria a tabela "usuarios".
+- Só insere se o e-mail ainda não existe (findByEmailIgnoreCase). Reiniciar o app
+  não duplica registros nem sobrescreve senhas alteradas.
+- A senha nunca é gravada em texto puro: passa pelo PasswordEncoder (BCrypt) antes
+  de salvar, o mesmo bean usado no login.
+
+ALTERNATIVAS CONSIDERADAS
+1) pgAdmin4 com usuarios.sql (roteiro original): continua válido e documentado em
+   PASSO_A_PASSO_PGADMIN.md, mas depende de conexão externa ao banco.
+2) Migrations (Flyway/Liquibase): é a solução mais adequada para projetos futuros,
+   mas está fora do conteúdo trabalhado até aqui.
+3) Seeder em código (escolhida): independe da rede do usuário, é idempotente e
+   funciona igual no docker-compose local e no Render.
+
+OBSERVAÇÕES
+- As credenciais ficam no código-fonte porque são usuários de teste da avaliação.
+  Em um sistema real, senhas não devem ficar no repositório: viriam de variáveis de
+  ambiente e seriam trocadas no primeiro acesso.
+- Para desativar, basta remover a classe CriarUsuariosIniciais (ou apagar a
+  anotação @Component).
+- Se um usuário com o mesmo e-mail já existir com senha inválida (por exemplo, texto
+  puro cadastrado à mão), o seeder não o altera. Apague a linha em "usuarios" e
+  reinicie a aplicação para que seja recriado corretamente.
