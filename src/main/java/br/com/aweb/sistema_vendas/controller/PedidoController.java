@@ -5,12 +5,14 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.aweb.sistema_vendas.model.Pedido;
 import br.com.aweb.sistema_vendas.model.StatusPedido;
@@ -86,17 +88,25 @@ public class PedidoController {
     }
     
     @PostMapping("/{pedidoId}/adicionar-item")
-    public String adicionarItem(@PathVariable Long pedidoId,
-        @RequestParam Long produtoId,
-        @RequestParam Integer quantidade
-    ) {
-        try{
-            pedidoService.adicionarItem(pedidoId, produtoId, quantidade);
-            return "redirect:/pedidos/edit/" + pedidoId;
-        } catch (IllegalArgumentException | IllegalStateException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+public String adicionarItem(@PathVariable Long pedidoId,
+    @RequestParam Long produtoId,
+    @RequestParam Integer quantidade,
+    RedirectAttributes redirectAttributes
+) {
+    try {
+        pedidoService.adicionarItem(pedidoId, produtoId, quantidade);
+        redirectAttributes.addFlashAttribute("sucesso", "Item adicionado ao pedido.");
+    } catch (IllegalArgumentException | IllegalStateException e) {
+        // Estoque insuficiente, pedido cancelado, produto inexistente, quantidade inválida...
+        // Em vez de exibir a página de erro, volta para a edição do pedido com a mensagem.
+        redirectAttributes.addFlashAttribute("erro", e.getMessage());
+    } catch (ObjectOptimisticLockingFailureException e) {
+        // Outro usuário alterou o pedido ao mesmo tempo (@Version)
+        redirectAttributes.addFlashAttribute("erro",
+            "O pedido foi alterado por outro usuário. Tente novamente.");
     }
+    return "redirect:/pedidos/edit/" + pedidoId;
+}
 
     @PostMapping("/{id}/finalizar")
     public String finalizarPedido(@PathVariable Long id) {

@@ -10,7 +10,6 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 <div class="container mt-5">
     
-    <!-- Cabeçalho com Informações Gerais -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Pedido #<span th:text="${pedido.id}"></span></h2>
         <a th:href="@{/pedidos}" class="btn btn-secondary">
@@ -26,7 +25,13 @@
         </div>
     </div>
 
-    <!-- Formulário para Adicionar Item -->
+    <div class="alert alert-danger" role="alert" th:if="${erro}">
+        <i class="bi bi-exclamation-triangle"></i> <span th:text="${erro}">Erro</span>
+    </div>
+    <div class="alert alert-success" role="alert" th:if="${sucesso}">
+        <i class="bi bi-check-circle"></i> <span th:text="${sucesso}">Sucesso</span>
+    </div>
+
     <div class="card mb-4">
         <div class="card-header bg-light">
             <h5 class="mb-0">Adicionar Item ao Pedido</h5>
@@ -56,7 +61,6 @@
         </div>
     </div>
 
-    <!-- Tabela de Itens Adicionados -->
     <div class="card">
         <div class="card-header bg-light">
             <h5 class="mb-0">Itens no Pedido</h5>
